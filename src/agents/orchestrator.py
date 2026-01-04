@@ -51,25 +51,25 @@ class ResearchLeadAgent:
                 for block in message.content:
                     if hasattr(block, "text"):
                         print(f"Claude: {block.text}")
-                    elif hasattr(block, "thinking"): # <-- Missing: Reasoning
+                    elif hasattr(block, "thinking"): # Reasoning
                         print(f"Thinking: {block.thinking}")
-                    elif hasattr(block, "name"):     # <-- ToolUseBlock
+                    elif hasattr(block, "name"):     # ToolUseBlock
                         print(f"Tool Call: {block.name}")
-                        print(f"Arguments: {block.input}") # <-- Missing: Args
+                        print(f"Arguments: {block.input}") # Args
             
             elif isinstance(message, UserMessage):
                 # Process blocks in UserMessage (which often contains tool results)
                 for block in message.content:
                     if hasattr(block, "text"):
                         result = block.text
-                    elif hasattr(block, "tool_use_id"): # <-- Missing: Tool Results
+                    elif hasattr(block, "tool_use_id"): # Tool Results
                         print(f"Tool Result for {block.tool_use_id}: {block.content}")
 
             elif isinstance(message, ResultMessage):
                 print(f"Summary: {message.subtype}")
-                if message.usage: # <-- Missing: Token Usage
+                if message.usage: # Token Usage
                     print(f"Usage: {message.usage.get('total_tokens')} tokens")
-                if message.total_cost_usd: # <-- Missing: Cost
+                if message.total_cost_usd: # Cost
                     print(f"Cost: ${message.total_cost_usd:.4f}")
         
         return result
