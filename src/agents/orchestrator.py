@@ -2,7 +2,7 @@ from claude_agent_sdk import query, ClaudeAgentOptions, AssistantMessage, Result
 import asyncio
 import json
 from datetime import datetime
-from .prompts import RESEARCH_LEAD_AGENT_PROMPT, RESEARCH_SUBAGENT_PROMPT, RESEARCH_CITATION_AGENT_PROMPT
+from .prompts import RESEARCH_LEAD_AGENT_PROMPT, RESEARCH_SUBAGENT_PROMPT, CITATIONS_AGENT_PROMPT
 
 class ResearchLeadAgent:
     def __init__(self, model: str = "claude-sonnet-4-5"):
@@ -12,13 +12,13 @@ class ResearchLeadAgent:
         # Format prompts with current date if needed
         lead_prompt = RESEARCH_LEAD_AGENT_PROMPT.replace("{{.CurrentDate}}", current_date)
         subagent_prompt = RESEARCH_SUBAGENT_PROMPT.replace("{{.CurrentDate}}", current_date)
-        citation_agent_prompt = RESEARCH_CITATION_AGENT_PROMPT.replace("{{.CurrentDate}}", current_date)
+        citation_agent_prompt = CITATIONS_AGENT_PROMPT.replace("{{.CurrentDate}}", current_date)
 
         # Researcher agent definition
         self.researcher_agent = AgentDefinition(
             description="Use this agent to search the web for information. Provide the agent with a detailed plan of action, and it will complete it for you. It is best to break down the task into smaller subtasks for multiple researchers to work on.",
             prompt=subagent_prompt,
-            tools=["WebSearch", "Write"],
+            tools=["WebSearch","WebFetch", "Write"],
         )
 
         self.citation_agent = AgentDefinition(
@@ -29,10 +29,11 @@ class ResearchLeadAgent:
         
         # ResearchOrchestratorAgent options
         self.options = ClaudeAgentOptions(
+            cwd="./shared_memory",
             system_prompt=lead_prompt,
-            tools=["Task", "Read", "Write"],
-            allowed_tools=["Task", "Read", "Write"],
-            agents={"web_researcher_agents": self.researcher_agent, "citation_agent": self.citation_agent},
+            tools=["Task", "Read", "Write", "WebSearch", "WebFetch"],
+            allowed_tools=["Task", "Read", "Write", "WebSearch", "WebFetch"],
+            agents={"web_researcher_agents": self.researcher_agent},
             model=self.model,
             permission_mode='bypassPermissions'
         )
@@ -72,4 +73,4 @@ class ResearchLeadAgent:
                 if message.total_cost_usd: # Cost
                     print(f"Cost: ${message.total_cost_usd:.4f}")
         
-        return result
+        return

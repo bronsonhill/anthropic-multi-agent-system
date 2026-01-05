@@ -23,11 +23,9 @@ async def main_async():
     print(f"Starting research on: {args.query}")
     print("-" * 50)
     
-    result = await orchestrator.run(args.query)
+    await orchestrator.run(args.query)
     
     print("-" * 50)
-    print("Final Research Report:")
-    print(result)
 
 def main():
     asyncio.run(main_async())
